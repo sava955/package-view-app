@@ -37,19 +37,19 @@ export default {
     return {
       open: false,
       selected: ""
-    };
+    }
   },
   mounted() {
     /* emiting selected value and passing it to parent component */
-    this.$parent.$emit("input", this.options.preselected_contract_length);
+    this.$parent.$emit("input", this.options.preselected_contract_length)
   },
   methods: {
     getCategory() {
       /* setting a default value in dropdown list */
-      this.selected = this.options.preselected_contract_length;
+      this.selected = this.options.preselected_contract_length
     }
   }
-};
+}
 </script>
 
 <style lang="scss" scoped>

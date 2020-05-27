@@ -9,13 +9,49 @@
           </div>
           <hr />
           <div class="card-body">
-            <div class="d-flex">
+            <div class="d-flex included">
               <div class="media-img"></div>
-              <div
-                class="media-content"
-                v-if="item.prices"
-              >{{item.prices.price_recurring[priceValue]}}</div>
+              <div class="included-list">
+                <ul>
+                  <li
+                    v-for="(inc, y) of item.included"
+                    :key="y"
+                    class="list-item text-left"
+                    :class="{listItemHide: inc.product_category == 'net'}"
+                  >
+                    <span v-if="inc.product_category == 'tv'">{{inc.long_name}}</span>
+                  </li>
+                </ul>
+              </div>
             </div>
+            <hr />
+            <div class="d-flex included">
+              <div class="media-img"></div>
+              <div class="included-list">
+                <ul>
+                  <li
+                    v-for="(inc, y) of item.included"
+                    :key="y"
+                    class="list-item text-left"
+                    :class="{listItemHide: inc.product_category == 'tv'}"
+                  >{{inc.product_category == 'net' ? inc.long_name : ''}}</li>
+                </ul>
+              </div>
+            </div>
+            <div class="prices d-flex" v-if="item.prices">
+              <div
+                v-if="item.prices.old_price_recurring"
+                class="old-price"
+              >{{item.prices.old_price_recurring[priceValue]}} rsd/mes.</div>
+              <div class="price-recurring">{{item.prices.price_recurring[priceValue]}} rsd/mes.</div>
+              <div
+                v-if="item.prices.old_price_recurring && item.prices.old_price_promo_text"
+                class="old-price-text"
+              >{{item.prices.old_price_promo_text}}</div>
+            </div>
+          </div>
+          <div class="card-footer">
+              <button class="btn btn-order">Naručite</button>
           </div>
         </div>
       </div>
@@ -24,7 +60,7 @@
 </template>
 
 <script>
-import axios from "axios"
+import axios from "axios";
 
 export default {
   name: "PageHome",
@@ -74,14 +110,22 @@ export default {
 
       .card-body {
         .d-flex {
-          display: flex;
-
           .media-img {
             background: #742d6c;
             border-radius: 50%;
             height: 20px;
             width: 20px;
           }
+        }
+
+        .prices {
+          .old-price {
+            text-decoration: line-through;
+          }
+        }
+
+        .listItemHide {
+          display: none;
         }
       }
     }
