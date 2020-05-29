@@ -1,6 +1,6 @@
 <template>
   <b-navbar>
-    <b-navbar-nav v-if="options" class="ml-auto">
+    <b-navbar-nav v-if="options" class="ml-auto navbar">
       <div class="custom" :tabindex="tabindex" @blur="open = false">
         <div
           class="selected"
@@ -37,7 +37,7 @@ export default {
     return {
       open: false,
       selected: ""
-    }
+    };
   },
   mounted() {
     /* emiting selected value and passing it to parent component */
@@ -49,69 +49,79 @@ export default {
       this.selected = this.options.preselected_contract_length
     }
   }
-}
+};
 </script>
 
 <style lang="scss" scoped>
-.custom {
-  position: relative;
-  width: 200px;
-  text-align: left;
-  outline: none;
-  height: 47px;
-  line-height: 47px;
+.navbar {
+  .custom {
+    position: relative;
+    width: 180px;
+    text-align: left;
+    outline: none;
+    height: 47px;
+    line-height: 47px;
 
-  .selected {
-    background-color: #f8f4ec;
-    border-radius: 6px;
-    color: #494949;
-    padding-left: 8px;
-    cursor: pointer;
-    user-select: none;
-
-    &:after {
-      position: absolute;
-      content: "";
-      top: 22px;
-      right: 10px;
-      width: 0;
-      height: 0;
-      border: 4px solid transparent;
-      border-color: #494949 transparent transparent transparent;
-    }
-  }
-
-  .selected.open {
-    border-radius: 6px 6px 0px 0px;
-    z-index: 1000;
-  }
-
-  .items {
-    border-top: 1px solid #ffffff;
-    color: #494949;
-    border-radius: 0px 0px 6px 6px;
-    overflow: hidden;
-    position: absolute;
-    background-color: #f8f4ec;
-    left: 0;
-    right: 0;
-    z-index: 1000;
-
-    .item {
+    .selected {
+      background-color: #f8f4ec;
+      border-radius: 6px;
       color: #494949;
       padding-left: 8px;
       cursor: pointer;
       user-select: none;
 
-      &:hover {
-        background-color: #742d6c;
-        color: #ffffff;
+      &:after {
+        position: absolute;
+        content: "";
+        top: 22px;
+        right: 10px;
+        width: 0;
+        height: 0;
+        border: 4px solid transparent;
+        border-color: #494949 transparent transparent transparent;
       }
+    }
+
+    .selected.open {
+      border-radius: 6px 6px 0px 0px;
+      z-index: 1000;
+    }
+
+    .items {
+      border-top: 1px solid #ffffff;
+      color: #494949;
+      border-radius: 0px 0px 6px 6px;
+      overflow: hidden;
+      position: absolute;
+      background-color: #f8f4ec;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+
+      .item {
+        color: #494949;
+        padding-left: 8px;
+        cursor: pointer;
+        user-select: none;
+
+        &:hover {
+          background-color: #742d6c;
+          color: #ffffff;
+        }
+      }
+    }
+
+    .selectHide {
+      display: none;
     }
   }
 
-  .selectHide {
-    display: none;
+  @media screen and (min-width: 768px) and (max-width: 1365px) {
+    padding: 0.5rem 0;
+  }
+
+  @media screen and (min-width: 320px) and (max-width: 767px) {
+    margin: auto !important;
   }
 }
 </style>
