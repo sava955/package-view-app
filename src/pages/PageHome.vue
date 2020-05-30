@@ -1,23 +1,33 @@
 <template>
   <div id="packages-page" class="container">
     <AppDropdown :options="categories" @input="findCategory($event)" />
-    <div class="row align-items-end">
+    <transition name="bounce">
+    <div class="row align-items-end" v-if="show">
       <div class="col-4" v-for="(item, i) of items" :key="i">
         <div class="card">
           <div class="is-featured" v-if="item.is_featured == 1">
             <span class="font-weight-bold">{{promoText}}</span>
-            <hr>
+            <hr />
           </div>
-          <div class="card-header d-flex" ref="cardHeader">
+          <div
+            v-if="item"
+            class="card-header d-flex"
+            ref="cardHeader"
+            :style="{height: heighestHeader + 'px'}"
+          >
             <h2 class="card-title align-self-center">{{item.name}}</h2>
           </div>
           <div class="card-body">
-            <div class="d-flex included">
-              <div v-if="assets" class="category-img align-self-center">
+            <div class="d-flex included align-items-center">
+              <div v-if="assets" class="category-img">
                 <img :src="assets.tv_category" alt="tv_category" />
               </div>
-              <div class="included-list included-list-1 flex-grow-1">
-                <ul>
+              <div
+                class="d-flex included-list included-list-1 flex-grow-1"
+                ref="tv"
+                :style="{height: heighestTv + 'px'}"
+              >
+                <ul class="align-self-center">
                   <li
                     v-for="(inc, y) of item.included"
                     :key="y"
@@ -33,12 +43,16 @@
               </div>
             </div>
             <hr />
-            <div class="d-flex included justify-content-center">
+            <div class="d-flex included align-items-center">
               <div v-if="assets" class="category-img">
                 <img :src="assets.net_category" alt="net_category" />
               </div>
-              <div class="included-list included-list-2 flex-grow-1">
-                <ul>
+              <div
+                class="d-flex included-list included-list-2 flex-grow-1"
+                ref="net"
+                :style="{height: heighestNet + 'px'}"
+              >
+                <ul class="align-self-center">
                   <li
                     v-for="(inc, y) of item.included"
                     :key="y"
@@ -54,7 +68,7 @@
                 v-if="promotion.discount_variations == priceValue"
                 class="d-flex mt-3 mb-3 promotions align-items-center"
               >
-                <div class="promotion-img">
+                <div class="promotion-img flex-grow-1">
                   <img :src="promotion.promotion_image" alt />
                 </div>
                 <div class="text ml-auto">
@@ -89,40 +103,49 @@
               class="old-price-text mb-2"
               v-html="item.prices.old_price_promo_text"
             >{{item.prices.old_price_promo_text}}</div>
-            <button ref="myButton" @click="clickedButton" class="btn btn-order mt-3">Naručite</button>
+            <button class="btn btn-order mt-3">Naručite</button>
           </div>
         </div>
       </div>
     </div>
+    </transition>
   </div>
 </template>
 
 <script>
-import axios from "axios";
+import axios from "axios"
 
 export default {
   name: "PageHome",
   data() {
     return {
+      show: false,
       categories: {},
       items: [],
       assets: {},
       priceValue: "",
       cardHeader: [],
-      promoText: ""
+      promoText: "",
+      cardHeaderHeight: [],
+      tvHeight: [],
+      netHeight: [],
+      heightValue: Number,
+      heighestHeader: Number,
+      heighestTv: Number,
+      heighestNet: Number
     };
   },
   created() {
     /* calling a get method to fetch data from API using axios */
     axios.get("http://www.mocky.io/v2/5e8465c23000008400cf4395").then(res => {
       /* reversing categories */
-      res.data.contract_length.contract_length_options.reverse();
+      res.data.contract_length.contract_length_options.reverse()
 
-      this.categories = res.data.contract_length;
+      this.categories = res.data.contract_length
       this.promoText = res.data.promo_text
 
       /* setting a deafult value for dropdown list */
-      this.priceValue = this.categories.preselected_contract_length;
+      this.priceValue = this.categories.preselected_contract_length
 
       res.data.items.forEach(item => {
         item.prices.price_recurring[this.priceValue] = Math.floor(
@@ -135,23 +158,29 @@ export default {
           inc.long_name = inc.long_name.replace(
             inc.attributes.attribute_value,
             "<strong>" + inc.attributes.attribute_value + "</strong>"
-          );
-        });
-      });
+          )
+        })
+      })
 
-      this.items = res.data.items;
-      this.assets = res.data.assets;
-    });
+      this.items = res.data.items
+      this.assets = res.data.assets
+      
+      // matching maximum height
+      this.$nextTick(() => {
+        if (this.$refs.cardHeader) {
+          this.matchHeight()
+        }
+      })
+    })
   },
-  mounted() { 
-    this.$watch(function() {
-                console.log(this.$refs)
-            }); 
+  mounted() {
+    this.show = true
   },
   methods: {
     /* passing selected value from dropdown list */
     findCategory(event) {
       /* setting a price value for diferent package categoires */
+      this.show = false;
       this.priceValue = event;
       this.items.forEach(item => {
         item.prices.price_recurring[this.priceValue] = Math.floor(
@@ -161,23 +190,68 @@ export default {
           item.prices.old_price_recurring[this.priceValue]
         );
       });
+       setTimeout(() => this.show = true, 500)
     },
     matchHeight() {
-      let height = this.$refs
-      console.log(height);
+      let header = this.$refs.cardHeader
+      let tv = this.$refs.tv
+      let net = this.$refs.net
+
+      // setting height for title
+      header.forEach(h => {
+        this.cardHeaderHeight.push(h.clientHeight)
+        this.findHeighestValue(this.cardHeaderHeight)
+        this.heighestHeader = this.heightValue
+      });
+
+      // setting height for tv category
+      tv.forEach(h => {
+        this.tvHeight.push(h.clientHeight)
+        this.findHeighestValue(this.tvHeight)
+        this.heighestTv = this.heightValue
+      })
+
+      // setting height for net category
+      net.forEach(h => {
+        this.netHeight.push(h.clientHeight)
+        this.findHeighestValue(this.netHeight)
+        this.heighestNet = this.heightValue
+      })
     },
-    clickedButton: function() {
-      console.log(this.$refs);
-      this.$refs.myButton.innerText = this.message;
+    // searching heighest value in elements
+    findHeighestValue: function(array) {
+      this.heightValue = Math.max.apply(Math, array)
+      return this.heightValue
     }
   }
 };
 </script>
 
 <style lang="scss" scoped>
+
+.bounce-enter-active {
+  animation: bounce-in .5s;
+}
+.bounce-leave-active {
+  animation: bounce-in .5s reverse;
+}
+@keyframes bounce-in {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.5);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
 #packages-page {
   .col-4 {
     display: table;
+    margin-bottom: 2em;
+
     .card {
       background-color: #f8f4ec;
       border-radius: 10px;
@@ -210,6 +284,10 @@ export default {
             height: 45px;
             width: 45px;
           }
+
+          .included-list ul {
+            margin-bottom: 0;
+          }
         }
 
         .listItemHide {
@@ -222,12 +300,15 @@ export default {
           min-height: 90px;
           padding-right: 10px;
 
-          .promotion-img img {
-            position: absolute;
-            top: -5px;
-            left: 0;
-            width: 90px;
-            height: auto;
+          .promotion-img {
+
+            img {
+              position: absolute;
+              top: -5px;
+              left: 0;
+              width: 90px;
+              height: auto;
+            }
           }
 
           .text {
@@ -289,6 +370,11 @@ export default {
       margin: 2em 0;
       flex: none !important;
       max-width: 100% !important;
+
+      .card-header,
+      .included-list {
+        height: 100% !important;
+      }
     }
   }
 
@@ -303,6 +389,12 @@ export default {
     .row {
       padding-right: 20px;
       padding-left: 20px;
+    }
+  }
+
+  @media screen and (max-width: 410px) {
+    .promotion-img {
+      width: 100%;
     }
   }
 }
